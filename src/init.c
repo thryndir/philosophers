@@ -6,7 +6,7 @@
 /*   By: thryndir <thryndir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/05 01:14:51 by thryndir          #+#    #+#             */
-/*   Updated: 2024/12/13 15:18:03 by thryndir         ###   ########.fr       */
+/*   Updated: 2024/12/13 17:04:30 by thryndir         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,6 +53,8 @@ t_philo	*ft_philonew()
 	result->last_eat = -1;
 	result->nbr_of_eat = 0;
 	result->nbr_of_fork = 0;
+	result->is_dead = false;
+	result->tid	= NULL;
 	return (result);
 }
 

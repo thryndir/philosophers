@@ -6,7 +6,7 @@
 /*   By: thryndir <thryndir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/05 01:20:31 by thryndir          #+#    #+#             */
-/*   Updated: 2024/12/13 15:19:09 by thryndir         ###   ########.fr       */
+/*   Updated: 2024/12/13 17:03:48 by thryndir         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,9 +43,11 @@ typedef struct s_fork
 
 typedef struct	s_philo
 {
-	int	last_eat;
-	int	nbr_of_eat;
-	int	nbr_of_fork;
+	int			last_eat;
+	int			nbr_of_eat;
+	int			nbr_of_fork;
+	bool		is_dead;
+	pthread_t	tid;
 }	t_philo;
 
 typedef struct s_node
@@ -64,6 +66,7 @@ typedef struct s_node
 t_node	*init(t_info *info, int argc, char **argv);
 t_node	*ft_nodelast(t_node *node);
 void	verif_errors(char **argv);
+void	create_philo(t_node *node, t_info info);
 int 	ft_usleep(size_t milliseconds);
 int		only_digit(char **argv);
 long	ft_atol(const char *str);

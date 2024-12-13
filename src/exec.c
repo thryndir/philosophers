@@ -3,21 +3,21 @@
 /*                                                        :::      ::::::::   */
 /*   exec.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lgalloux <lgalloux@student.42.fr>          +#+  +:+       +#+        */
+/*   By: thryndir <thryndir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/06 22:47:35 by lgalloux          #+#    #+#             */
-/*   Updated: 2024/06/09 22:50:09 by lgalloux         ###   ########.fr       */
+/*   Updated: 2024/12/13 17:10:11 by thryndir         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-void	take_fork(t_philo *philo, int philo_index)
+void	take_fork(t_philo *philo)
 {
 
 }
 
-void	philo_eat(t_philo *philo, int philo_index)
+void	philo_eat(t_philo *philo)
 {
 	take_fork(philo, philo_index);
 	
@@ -33,13 +33,12 @@ void	philo_sleep(t_philo *philo)
 
 }
 
-void	philo_life(void *v_philo)
+void	philo_life(void *v_node)
 {
 	t_philo	*philo;
-	int		i;
 
-	philo = (t_philo *)v_philo;
-	while (!is_dead())
+	philo = (t_philo *)v_node->u_u.philo;
+	while (!philo->is_dead)
 	{
 		philo_eat(philo, i);
 		philo_think();
@@ -48,16 +47,15 @@ void	philo_life(void *v_philo)
 	}
 }
 
-void	create_philo(t_philo *philo)
+void	create_philo(t_node *node, t_info info)
 {
-	size_t		temp;
 	size_t		i;
 
 	i = 0;
-	temp = philo->nbr_of_philo;
-	while (temp)
+	while (node != ft_nodelast(node))
 	{
-		pthread_create(philo->threads[i], NULL, &philo_life, philo);
-		temp--;
+		if (node->type == PHILO)
+			pthread_create(node->u_u.philo->tid, NULL, &philo_life, node);
+		node = node->next;
 	}
 }
