@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lgalloux <lgalloux@student.42.fr>          +#+  +:+       +#+        */
+/*   By: thryndir <thryndir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/06 01:03:47 by thryndir          #+#    #+#             */
-/*   Updated: 2024/06/06 22:41:19 by lgalloux         ###   ########.fr       */
+/*   Updated: 2024/12/13 15:17:02 by thryndir         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,9 +14,15 @@
 
 int main(int argc, char **argv)
 {
-	t_philo philo;
+	t_info info;
+	t_node *node;
 
-	if (argc < 4 || argc > 5)
+	if (argc < 5 || argc > 6)
 		return (1);
-	init(&philo, argv, argc);
+	node = init(&info, argc, argv);
+	while (node != ft_nodelast(node))
+	{
+		printf("l'index du node est %d", node->index);
+		node = node->next;
+	}
 }

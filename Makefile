@@ -1,31 +1,29 @@
-NAME = philosophers
-CC = cc
-CFLAGS = -Wall -Wextra - Werror -g
-HEADER = -Include
+NAME := philosophers
+HEADER := -Iinclude
+CC := cc
+CFLAGS = -Wall -Wextra -Werror -g
+RM := rm -rf
 
-FILES = exec init verif utils main
-SRC_DIR = src/
-OBJ_DIR = obj/
+SRC_DIR := src/
+SRCS := $(shell find $(SRC_DIR) -name "*.c")
 
-SRCS = $(addprefix $(SRC_DIR), addsuffix .c $(FILES))
-OBJS = $(addprefix $(OBJ_DIR), addsuffix .o $(FILES))
+OBJ_DIR := obj/
+OBJS := $(patsubst $(SRC_DIR)%.c,$(OBJ_DIR)%.o,$(SRCS))
 
 all: $(NAME)
 
-$(NAME): $(OBJS) $(OBJ_DIR)
-	$(CC) $(CFLAGS) $(OBJS) -o $(NAME)
+$(NAME): $(OBJS)
+	$(CC) $(CFLAGS) $^ -o $@
 
 $(OBJ_DIR)%.o: $(SRC_DIR)%.c
+	@mkdir -p $(@D)
 	$(CC) $(CFLAGS) $(HEADER) -o $@ -c $<
 
-$(OBJ_DIR):
-	mkdir $@
-
 clean:
-	rm -rf $(OBJ_DIR)
+	$(RM) $(OBJS)
 
 fclean: clean
-	rm -f $(NAME)
+	$(RM) $(NAME)
 
 re: fclean all
 

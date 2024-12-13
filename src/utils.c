@@ -3,19 +3,19 @@
 /*                                                        :::      ::::::::   */
 /*   utils.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lgalloux <lgalloux@student.42.fr>          +#+  +:+       +#+        */
+/*   By: thryndir <thryndir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/06 00:56:30 by thryndir          #+#    #+#             */
-/*   Updated: 2024/06/09 22:22:04 by lgalloux         ###   ########.fr       */
+/*   Updated: 2024/12/13 14:51:52 by thryndir         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-int	ft_atoll(const char *str)
+long	ft_atol(const char *str)
 {
 	int			i;
-	long long	result;
+	long		result;
 	int			sign;
 
 	i = 0;
@@ -57,6 +57,15 @@ int	nbr_size(char	*nbr)
 		size++;
 	}
 	return (size);
+}
+
+size_t	get_current_time(void)
+{
+	struct timeval	time;
+
+	if (gettimeofday(&time, NULL) == -1)
+		write(2, "gettimeofday() error\n", 22);
+	return (time.tv_sec * 1000 + time.tv_usec / 1000);
 }
 
 int ft_usleep(size_t milliseconds)
