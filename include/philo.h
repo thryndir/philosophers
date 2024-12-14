@@ -6,7 +6,7 @@
 /*   By: thryndir <thryndir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/05 01:20:31 by thryndir          #+#    #+#             */
-/*   Updated: 2024/12/13 17:03:48 by thryndir         ###   ########.fr       */
+/*   Updated: 2024/12/14 18:13:52 by thryndir         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,25 +29,28 @@ typedef enum e_type
 
 typedef	struct s_info
 {
-	long	nbr_of_philo;
-	long	time_to_die;
-	long	time_to_eat;
-	long	time_to_sleep;
-	long	max_eat;
+	size_t	nbr_of_philo;
+	size_t	time_to_die;
+	size_t	time_to_eat;
+	size_t	time_to_sleep;
+	size_t	max_eat;
+	bool	a_dead;
+	t_node	*node;
 }	t_info;
 
 typedef struct s_fork
 {
-	bool is_used;
+	pthread_mutex_t *fork_lock;
+	bool 			is_used;
 }	t_fork;
 
 typedef struct	s_philo
 {
-	int			last_eat;
+	pthread_t	*id;
+	size_t		last_eat;
 	int			nbr_of_eat;
 	int			nbr_of_fork;
 	bool		is_dead;
-	pthread_t	tid;
 }	t_philo;
 
 typedef struct s_node
@@ -66,10 +69,14 @@ typedef struct s_node
 t_node	*init(t_info *info, int argc, char **argv);
 t_node	*ft_nodelast(t_node *node);
 void	verif_errors(char **argv);
-void	create_philo(t_node *node, t_info info);
+void	create_philo(t_info info);
 int 	ft_usleep(size_t milliseconds);
 int		only_digit(char **argv);
 long	ft_atol(const char *str);
+size_t	get_current_time(void);
+char	*ft_itoa(int nbr);
+char	*ft_strjoin(const char *str1, const char *str2);
+size_t	ft_strlen(char *str);
 int		sup_to_maxint(char	**argv);
 int		nbr_size(char	*nbr);
 

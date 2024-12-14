@@ -6,7 +6,7 @@
 /*   By: thryndir <thryndir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/06 01:03:47 by thryndir          #+#    #+#             */
-/*   Updated: 2024/12/13 17:04:47 by thryndir         ###   ########.fr       */
+/*   Updated: 2024/12/14 12:47:12 by thryndir         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,8 @@ int main(int argc, char **argv)
 
 	if (argc < 5 || argc > 6)
 		return (1);
-	node = init(&info, argc, argv);
+	info.node = init(&info, argc, argv);
+	node = info.node;
 	while (node != ft_nodelast(node))
 	{
 		printf("l'index du node est %d", node->index);

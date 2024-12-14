@@ -6,7 +6,7 @@
 /*   By: thryndir <thryndir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/05 01:14:51 by thryndir          #+#    #+#             */
-/*   Updated: 2024/12/13 17:04:30 by thryndir         ###   ########.fr       */
+/*   Updated: 2024/12/14 18:07:07 by thryndir         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,11 +50,11 @@ t_philo	*ft_philonew()
 	result = malloc(sizeof(t_philo));
 	if (!result)
 		return (NULL);
-	result->last_eat = -1;
+	result->last_eat = get_current_time();
 	result->nbr_of_eat = 0;
 	result->nbr_of_fork = 0;
 	result->is_dead = false;
-	result->tid	= NULL;
+	result->id = -1;
 	return (result);
 }
 
@@ -98,13 +98,13 @@ t_node	*init(t_info *info, int argc, char **argv)
 	info->time_to_die = ft_atol(argv[2]);
 	info->time_to_eat = ft_atol(argv[3]);
 	info->time_to_sleep = ft_atol(argv[4]);
+	info->max_eat = -1;
+	info->a_dead = false;
 	if (argc == 5)
 		info->max_eat = ft_atol(argv[5]);
-	else
-		info->max_eat = -1;
 	node = ft_nodenew(i, i % 2);
 	i++;
-	while (i <= info->nbr_of_philo)
+	while (i < info->nbr_of_philo * 2)
 	{
 		new = ft_nodenew(i, i % 2);
 		if (i == info->nbr_of_philo)
