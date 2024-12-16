@@ -6,7 +6,7 @@
 /*   By: thryndir <thryndir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/14 12:04:20 by thryndir          #+#    #+#             */
-/*   Updated: 2024/12/14 12:28:12 by thryndir         ###   ########.fr       */
+/*   Updated: 2024/12/16 15:59:24 by thryndir         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@ size_t ft_strlen(char *str)
 {
     size_t len;
 
+	len = 0;
     while (str[len])
         len++;
     return (len);
@@ -31,7 +32,7 @@ size_t	ft_strlcat(char *dst, const char *src, size_t size)
 	if (dst == NULL || src == NULL)
 		return (0);
 	destlen = ft_strlen(dst);
-	srclen = ft_strlen((const char *)src);
+	srclen = ft_strlen((char *)src);
 	if (size <= destlen)
 		return (size + srclen);
 	space_left = size - destlen - 1;
@@ -61,7 +62,7 @@ size_t	ft_strlcpy(char *dst, const char *src, size_t size)
 		}
 		dst[i] = '\0';
 	}
-	return (ft_strlen((const char *)src));
+	return (ft_strlen((char *)src));
 }
 
 char	*ft_strjoin(const char *str1, const char *str2)
@@ -73,8 +74,8 @@ char	*ft_strjoin(const char *str1, const char *str2)
 
 	if (str1 == NULL || str2 == NULL)
 		return (NULL);
-	str1_len = ft_strlen(str1);
-	str2_len = ft_strlen(str2);
+	str1_len = ft_strlen((char *)str1);
+	str2_len = ft_strlen((char *)str2);
 	strs_len = str1_len + str2_len;
 	result = malloc((strs_len + 1));
 	if (result == NULL)

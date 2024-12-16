@@ -6,7 +6,7 @@
 /*   By: thryndir <thryndir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/05 01:20:31 by thryndir          #+#    #+#             */
-/*   Updated: 2024/12/14 18:13:52 by thryndir         ###   ########.fr       */
+/*   Updated: 2024/12/16 17:09:38 by thryndir         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,7 @@
 # include <unistd.h>
 # include <limits.h>
 # include <sys/time.h>
+# include <string.h>
 
 typedef enum e_type
 {
@@ -29,13 +30,13 @@ typedef enum e_type
 
 typedef	struct s_info
 {
-	size_t	nbr_of_philo;
-	size_t	time_to_die;
-	size_t	time_to_eat;
-	size_t	time_to_sleep;
-	size_t	max_eat;
-	bool	a_dead;
-	t_node	*node;
+	int				nbr_of_philo;
+	size_t			time_to_die;
+	size_t			time_to_eat;
+	size_t			time_to_sleep;
+	int				max_eat;
+	bool			a_dead;
+	struct s_node	*node;
 }	t_info;
 
 typedef struct s_fork
@@ -69,6 +70,7 @@ typedef struct s_node
 t_node	*init(t_info *info, int argc, char **argv);
 t_node	*ft_nodelast(t_node *node);
 void	verif_errors(char **argv);
+void	writef(long timestamp, int x, char *message);
 void	create_philo(t_info info);
 int 	ft_usleep(size_t milliseconds);
 int		only_digit(char **argv);

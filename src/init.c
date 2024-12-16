@@ -6,7 +6,7 @@
 /*   By: thryndir <thryndir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/05 01:14:51 by thryndir          #+#    #+#             */
-/*   Updated: 2024/12/14 18:07:07 by thryndir         ###   ########.fr       */
+/*   Updated: 2024/12/16 17:22:01 by thryndir         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@ t_node	*ft_nodelast(t_node *node)
 	prev_index = -1;
 	if (node == NULL)
 			return (NULL);
-	while (node->index > prev_index)
+	while (node->next && node->index > prev_index)
 	{
 		prev_index = node->index;
 		node = node->next;
@@ -54,7 +54,7 @@ t_philo	*ft_philonew()
 	result->nbr_of_eat = 0;
 	result->nbr_of_fork = 0;
 	result->is_dead = false;
-	result->id = -1;
+	result->id = 0;
 	return (result);
 }
 
@@ -89,7 +89,7 @@ t_node	*ft_nodenew(int index, int type)
 
 t_node	*init(t_info *info, int argc, char **argv)
 {
-	long	i;
+	int	i;
 	t_node *node;
 	t_node	*new;
 
@@ -98,9 +98,9 @@ t_node	*init(t_info *info, int argc, char **argv)
 	info->time_to_die = ft_atol(argv[2]);
 	info->time_to_eat = ft_atol(argv[3]);
 	info->time_to_sleep = ft_atol(argv[4]);
-	info->max_eat = -1;
 	info->a_dead = false;
-	if (argc == 5)
+	info->max_eat = -1;
+	if (argc == 6)
 		info->max_eat = ft_atol(argv[5]);
 	node = ft_nodenew(i, i % 2);
 	i++;

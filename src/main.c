@@ -6,7 +6,7 @@
 /*   By: thryndir <thryndir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/06 01:03:47 by thryndir          #+#    #+#             */
-/*   Updated: 2024/12/14 12:47:12 by thryndir         ###   ########.fr       */
+/*   Updated: 2024/12/16 16:00:24 by thryndir         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,5 +26,5 @@ int main(int argc, char **argv)
 		printf("l'index du node est %d", node->index);
 		node = node->next;
 	}
-	create_philo(node, info);
+	create_philo(info);
 }

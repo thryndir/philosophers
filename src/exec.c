@@ -6,7 +6,7 @@
 /*   By: thryndir <thryndir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/06 22:47:35 by lgalloux          #+#    #+#             */
-/*   Updated: 2024/12/14 19:19:45 by thryndir         ###   ########.fr       */
+/*   Updated: 2024/12/16 16:32:12 by thryndir         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,13 +19,11 @@ void	take_r_fork(t_node *node)
 	writef(get_current_time(), node->index / 2, " has taken a fork\n");
 }
 
-int	take_fork(t_info *info)
+void	take_fork(t_info *info)
 {
-	t_philo *philo;
 	t_node	*node;
 
 	node = info->node;
-	philo = info->node->u_u.philo;
 	if (node->index % 4 == 0)
 		take_r_fork(node);
 	pthread_mutex_lock(node->prev->u_u.fork->fork_lock);
@@ -115,7 +113,7 @@ void	writef(long timestamp, int x, char *message)
 	free(to_write);
 }
 
-void	philo_life(void *v_info)
+void	*philo_life(void *v_info)
 {
 	t_info	*info;
 	t_philo	*philo;
@@ -126,7 +124,7 @@ void	philo_life(void *v_info)
 	while (!info->a_dead)
 	{
 		if (info->max_eat != -1 && philo->nbr_of_eat >= info->max_eat)
-			return (0);
+			return ((void *)0);
 		else if (info->a_dead || philo_eat(info))
 			break;
 		else if (info->a_dead || philo_sleep(info))
@@ -135,13 +133,11 @@ void	philo_life(void *v_info)
 			break;
 	}
 	info->a_dead = true;
+	return ((void *)0);
 }
 
 void	create_philo(t_info info)
 {
-	size_t		i;
-
-	i = 0;
 	while (info.node != ft_nodelast(info.node))
 	{
 		if (info.node->type == PHILO)
@@ -154,7 +150,7 @@ void	create_philo(t_info info)
 	while (info.node != ft_nodelast(info.node))
 	{
 		if (info.node->type == PHILO)
-			pthread_join(info.node->u_u.philo->id, NULL);
+			pthread_join(*info.node->u_u.philo->id, NULL);
 		else if (info.node->type == FORK)
 			pthread_mutex_destroy(info.node->u_u.fork->fork_lock);
 		info.node = info.node->next;
