@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: thryndir <thryndir@student.42.fr>          +#+  +:+       +#+        */
+/*   By: lgalloux <lgalloux@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/06 01:03:47 by thryndir          #+#    #+#             */
-/*   Updated: 2024/12/16 16:00:24 by thryndir         ###   ########.fr       */
+/*   Updated: 2024/12/17 15:46:48 by lgalloux         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,10 +21,5 @@ int main(int argc, char **argv)
 		return (1);
 	info.node = init(&info, argc, argv);
 	node = info.node;
-	while (node != ft_nodelast(node))
-	{
-		printf("l'index du node est %d", node->index);
-		node = node->next;
-	}
 	create_philo(info);
 }

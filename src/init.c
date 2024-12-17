@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   init.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: thryndir <thryndir@student.42.fr>          +#+  +:+       +#+        */
+/*   By: lgalloux <lgalloux@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/05 01:14:51 by thryndir          #+#    #+#             */
-/*   Updated: 2024/12/16 17:22:01 by thryndir         ###   ########.fr       */
+/*   Updated: 2024/12/17 16:01:19 by lgalloux         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,17 +14,34 @@
 
 t_node	*ft_nodelast(t_node *node)
 {
-	int	prev_index;
 
-	prev_index = -1;
 	if (node == NULL)
 			return (NULL);
-	while (node->next && node->index > prev_index)
-	{
-		prev_index = node->index;
+	while (node->next && node->next->index > node->index)
 		node = node->next;
-	}
 	return (node);
+}
+
+void	print_node(t_node *node)
+{
+	t_node *current;
+
+	current = node;
+	while (1)
+	{
+		printf("le node %d, a pour type %d\n", current->index, current->type);
+		if (current->prev)
+			printf("le node %d a pour prev %d, qui est du type %d\n", current->index, current->prev->index, current->prev->type);
+		else
+			printf("le node %d n'a pas de prev\n", current->index);
+		if (current->next)
+		printf("le node %d a pour next %d, qui est du type %d\n", current->index, current->next->index, current->next->type);
+		else
+			printf("le node %d n'a pas de next\n", current->index);
+		current = current->next;
+		if (current->index == 0)
+			break;
+	}
 }
 
 void	ft_nodeadd_back(t_node **node, t_node *new, bool is_last)
@@ -39,7 +56,10 @@ void	ft_nodeadd_back(t_node **node, t_node *new, bool is_last)
 		tmp->next = new;
 		new->prev = tmp;
 		if (is_last)
+		{
 			new->next = *node;
+			(*node)->prev = new;
+		}
 	}
 }
 
@@ -107,7 +127,7 @@ t_node	*init(t_info *info, int argc, char **argv)
 	while (i < info->nbr_of_philo * 2)
 	{
 		new = ft_nodenew(i, i % 2);
-		if (i == info->nbr_of_philo)
+		if (i == info->nbr_of_philo * 2 - 1)
 			ft_nodeadd_back(&node, new, true);
 		else
 			ft_nodeadd_back(&node, new, false);

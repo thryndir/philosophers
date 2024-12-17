@@ -1,45 +1,32 @@
 #include "philo.h"
 
-char	*convert(char *str, int nbr, int len)
+char	*convert(char *str, size_t nbr, int len)
 {
-	long l_nbr;
-
-	l_nbr = nbr;
-	if (l_nbr < 0)
-	{
+	if (nbr < 0)
 		str[0] = '-';
-		l_nbr *= -1;
-	}
-	while (len > 0)
+	while ((len > 0 && nbr < 0) || (len >= 0 && nbr >= 0))
 	{
-		str[len] = l_nbr % 10 + '0';
-		l_nbr = l_nbr / 10;
+		str[len] = (nbr % 10) * (1 - 2 * (nbr < 0)) + '0';
+		nbr = nbr / 10;
 		len--;
 	}
 	return (str);
 }
 
-int	ft_nbr_count(int nbr)
+int	ft_nbr_count(size_t nbr)
 {
 	int		len;
-	long	l_nbr;
 
 	len = 1;
-	l_nbr = nbr;
-	if (l_nbr < 0)
+	while (nbr >= 10)
 	{
-		l_nbr *= -1;
-		len++;
-	}
-	while (l_nbr >= 10)
-	{
-		l_nbr = l_nbr / 10;
+		nbr = nbr / 10;
 		len++;
 	}
 	return (len);
 }
 
-char	*ft_itoa(int nbr)
+char	*ft_itoa(size_t nbr)
 {
 	char	*str;
 	int		len;
@@ -48,7 +35,7 @@ char	*ft_itoa(int nbr)
 	str = malloc(len + 1);
 	if (str == NULL)
 		return (NULL);
-	str = convert(str, nbr, len);
-	str[len + 1] = '\0';
+	str = convert(str, nbr, len - 1);
+	str[len] = '\0';
 	return (str);
 }

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   philo.h                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: thryndir <thryndir@student.42.fr>          +#+  +:+       +#+        */
+/*   By: lgalloux <lgalloux@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/05 01:20:31 by thryndir          #+#    #+#             */
-/*   Updated: 2024/12/16 17:09:38 by thryndir         ###   ########.fr       */
+/*   Updated: 2024/12/17 18:22:24 by lgalloux         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,13 +41,13 @@ typedef	struct s_info
 
 typedef struct s_fork
 {
-	pthread_mutex_t *fork_lock;
+	pthread_mutex_t fork_lock;
 	bool 			is_used;
 }	t_fork;
 
 typedef struct	s_philo
 {
-	pthread_t	*id;
+	pthread_t	id;
 	size_t		last_eat;
 	int			nbr_of_eat;
 	int			nbr_of_fork;
@@ -69,14 +69,15 @@ typedef struct s_node
 
 t_node	*init(t_info *info, int argc, char **argv);
 t_node	*ft_nodelast(t_node *node);
+void	print_node(t_node *node);
 void	verif_errors(char **argv);
-void	writef(long timestamp, int x, char *message);
+void	writef(size_t timestamp, int x, char *message);
 void	create_philo(t_info info);
 int 	ft_usleep(size_t milliseconds);
 int		only_digit(char **argv);
 long	ft_atol(const char *str);
 size_t	get_current_time(void);
-char	*ft_itoa(int nbr);
+char	*ft_itoa(size_t nbr);
 char	*ft_strjoin(const char *str1, const char *str2);
 size_t	ft_strlen(char *str);
 int		sup_to_maxint(char	**argv);
