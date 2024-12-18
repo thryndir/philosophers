@@ -6,7 +6,7 @@
 /*   By: lgalloux <lgalloux@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/05 01:20:31 by thryndir          #+#    #+#             */
-/*   Updated: 2024/12/17 18:22:24 by lgalloux         ###   ########.fr       */
+/*   Updated: 2024/12/18 16:11:42 by lgalloux         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,8 +63,8 @@ typedef struct s_node
 		t_philo *philo;
 		t_fork *fork;
 	} u_u;
-	struct s_node *next;
-	struct s_node *prev;
+	struct s_node *left;
+	struct s_node *right;
 }	t_node;
 
 t_node	*init(t_info *info, int argc, char **argv);

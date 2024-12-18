@@ -6,7 +6,7 @@
 /*   By: lgalloux <lgalloux@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/06 22:47:35 by lgalloux          #+#    #+#             */
-/*   Updated: 2024/12/17 18:42:07 by lgalloux         ###   ########.fr       */
+/*   Updated: 2024/12/18 18:27:22 by lgalloux         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,9 +14,9 @@
 
 void	take_r_fork(t_node *node)
 {
-	pthread_mutex_lock(&node->next->u_u.fork->fork_lock);
+	pthread_mutex_lock(&node->right->u_u.fork->fork_lock);
 	node->u_u.philo->nbr_of_fork++;
-	writef(get_current_time(), node->index / 2, " has taken a fork\n");
+	printf("philo %d has taken the his right fork %d\n", node->index, node->right->index);
 }
 
 void	take_fork(t_info *info)
@@ -26,9 +26,9 @@ void	take_fork(t_info *info)
 	node = info->node;
 	if (node->index % 4 == 0)
 		take_r_fork(node);
-	pthread_mutex_lock(&node->prev->u_u.fork->fork_lock);
+	pthread_mutex_lock(&node->left->u_u.fork->fork_lock);
 	node->u_u.philo->nbr_of_fork++;
-	writef(get_current_time(), node->index / 2, " has taken a fork\n");
+	printf("philo %d has taken his left fork %d\n", node->index, node->left->index);
 	if (node->index % 4 != 0)
 		take_r_fork(node);
 }
@@ -44,15 +44,19 @@ int	philo_eat(t_info *info)
 	if (get_current_time() - philo->last_eat >= info->time_to_die)
 	{
 		philo->is_dead = true;
-		writef(get_current_time(), node->index / 2, " died\n");
+		writef(get_current_time(), node->index, " died\n");
 		return (1);
 	}
-	writef(get_current_time(), node->index / 2, " is eating\n");
+	printf("le philo %d a %d fork\n", node->index, node->u_u.philo->nbr_of_fork);
+	writef(get_current_time(), node->index, " is eating\n");
 	ft_usleep(info->time_to_eat);
 	philo->nbr_of_eat++;
 	philo->last_eat = get_current_time();
-	pthread_mutex_unlock(&node->prev->u_u.fork->fork_lock);
-	pthread_mutex_unlock(&node->next->u_u.fork->fork_lock);
+	pthread_mutex_unlock(&node->right->u_u.fork->fork_lock);
+	printf("philo %d let go of his right fork %d\n", info->node->index, node->right->index);
+	pthread_mutex_unlock(&node->left->u_u.fork->fork_lock);
+	printf("philo %d let go of his left fork %d\n", info->node->index, node->left->index);
+	philo->nbr_of_fork = 0;
 	return (0);
 }
 
@@ -63,13 +67,13 @@ int	philo_think(t_info *info)
 
 	node = info->node;
 	philo = node->u_u.philo;
-	if (philo->last_eat - get_current_time() >= info->time_to_die)
+	if (get_current_time() - philo->last_eat >= info->time_to_die)
 	{
 		philo->is_dead = true;
-		writef(get_current_time(), node->index / 2, " died\n");
+		writef(get_current_time(), node->index, " died\n");
 		return (1);
 	}
-	writef(get_current_time(), node->index / 2, " is thinking\n");
+	writef(get_current_time(), node->index, " is thinking\n");
 	return (0);
 }
 
@@ -80,15 +84,15 @@ int	philo_sleep(t_info *info)
 
 	node = info->node;
 	philo = node->u_u.philo;
-	if (philo->last_eat - get_current_time() 
-		>= info->time_to_die || philo->last_eat - get_current_time() 
+	if (get_current_time() - philo->last_eat 
+		>= info->time_to_die || get_current_time() - philo->last_eat 
 		+ info->time_to_sleep >= info->time_to_die)
 	{
 		philo->is_dead = true;
-		writef(get_current_time(), node->index / 2, " died\n");
+		writef(get_current_time(), node->index, " died\n");
 		return (1);
 	}
-	writef(get_current_time(), node->index / 2, " is sleeping\n");
+	writef(get_current_time(), node->index, " is sleeping\n");
 	ft_usleep(info->time_to_sleep);
 	return (0);
 }
@@ -119,43 +123,73 @@ void	*philo_life(void *v_info)
 	t_philo	*philo;
 
 	info = (t_info *)v_info;
+	// write(1, "test\n", 5);
+	printf("l'index du philo est %d\n", info->node->index);
+	return (NULL);
 	philo = info->node->u_u.philo;
 	while (!info->a_dead)
 	{
 		if (info->max_eat != -1 && philo->nbr_of_eat >= info->max_eat)
-			return ((void *)0);
-		else if (info->a_dead || philo_eat(info))
+		{
+			printf("c'est bon %d a bien mange", info->node->index);
+			return (NULL);
+		}
+		if (info->a_dead || philo_eat(info))
+		{
+			if (info->a_dead)
+				writef(get_current_time(), info->node->index, " ah il y a un mort\n");
+			else
+				writef(get_current_time(), info->node->index, " il est mort en mangeant\n");
 			break;
-		else if (info->a_dead || philo_sleep(info))
+		}
+		if (info->a_dead || philo_sleep(info))
+		{
+			if (info->a_dead)
+				writef(get_current_time(), info->node->index, " ah il y a un mort\n");
+			else
+				writef(get_current_time(), info->node->index, " il est mort en dormant\n");
 			break;
-		else if (info->a_dead || philo_think(info))
+		}
+		if (info->a_dead || philo_think(info))
+		{
+			if (info->a_dead)
+				writef(get_current_time(), info->node->index, " ah il y a un mort\n");
+			else
+				writef(get_current_time(), info->node->index, " il est mort en pensant\n");
 			break;
+		}
 	}
 	info->a_dead = true;
-	return ((void *)0);
+	printf("ah %d c'est bien termine\n", info->node->index);
+	return (NULL);
 }
 
 void	create_philo(t_info info)
 {
-	writef(get_current_time(), 0, " has taken a fork\n");
 	while (1)
 	{
 		if (info.node->type == PHILO)
+		{
+			printf("l'index du philo dans create_philo est %d\n", info.node->index);
 			pthread_create(&info.node->u_u.philo->id, NULL, &philo_life, &info);
+		}
 		else if (info.node->type == FORK)
+		{
+			printf("l'index de la fork dans create_philo est %d\n", info.node->index);
 			pthread_mutex_init(&info.node->u_u.fork->fork_lock, NULL);
-		info.node = info.node->next;
+		}
+		usleep(100);
+		info.node = info.node->left;
 		if (info.node->index == 0)
 			break;
 	}
-	info.node = info.node->next;
 	while (1)
 	{
 		if (info.node->type == PHILO)
 			pthread_join(info.node->u_u.philo->id, NULL);
 		else if (info.node->type == FORK)
 			pthread_mutex_destroy(&info.node->u_u.fork->fork_lock);
-		info.node = info.node->next;
+		info.node = info.node->left;
 		if (info.node->index == 0)
 			break;
 	}
