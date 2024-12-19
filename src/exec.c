@@ -6,7 +6,7 @@
 /*   By: lgalloux <lgalloux@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/06 22:47:35 by lgalloux          #+#    #+#             */
-/*   Updated: 2024/12/18 18:27:22 by lgalloux         ###   ########.fr       */
+/*   Updated: 2024/12/19 18:41:08 by lgalloux         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -117,16 +117,47 @@ void	writef(size_t timestamp, int x, char *message)
 	free(to_write);
 }
 
+t_node	*node_cpy(t_node *node)
+{
+	t_node *cpy;
+	t_node *new;
+
+	cpy = ft_nodenew(node->right, node->right->index, node->right->type);
+	new = ft_nodenew(node, node->index, node->type);
+	ft_nodeadd_back(&cpy, new, false);
+	new = ft_nodenew(node->left, node->left->index, node->left->type);
+	if (cpy->left->index == 0)
+		ft_nodeadd_back(&cpy->left, new, false);
+	else
+		ft_nodeadd_back(&cpy, new, false);
+	return (cpy->left);
+}
+
+void	print_lst(t_node *node)
+{
+	t_node *current;
+
+	current = node;
+	while (current)
+	{
+		printf("l'index du node est %d\n", current->index);
+		current = current->left;
+	}
+}
+
 void	*philo_life(void *v_info)
 {
 	t_info	*info;
 	t_philo	*philo;
+	t_node	*node;
+	int		i;
 
+	i = 0;
 	info = (t_info *)v_info;
-	// write(1, "test\n", 5);
-	printf("l'index du philo est %d\n", info->node->index);
-	return (NULL);
-	philo = info->node->u_u.philo;
+	node = node_cpy(info->node);
+	pthread_mutex_unlock(&info->sync_create);
+	print_lst(node->right);
+	philo = node->u_u.philo;
 	while (!info->a_dead)
 	{
 		if (info->max_eat != -1 && philo->nbr_of_eat >= info->max_eat)
@@ -164,22 +195,22 @@ void	*philo_life(void *v_info)
 	return (NULL);
 }
 
-void	create_philo(t_info info)
+void	create_philo(t_iter *iter)
 {
+	t_iter *current;
+
+	current = 
 	while (1)
 	{
+		printf("l'index est %d\n", info.node->index);
 		if (info.node->type == PHILO)
 		{
-			printf("l'index du philo dans create_philo est %d\n", info.node->index);
+			pthread_mutex_lock(&info.sync_create);
 			pthread_create(&info.node->u_u.philo->id, NULL, &philo_life, &info);
 		}
-		else if (info.node->type == FORK)
-		{
-			printf("l'index de la fork dans create_philo est %d\n", info.node->index);
-			pthread_mutex_init(&info.node->u_u.fork->fork_lock, NULL);
-		}
-		usleep(100);
+		pthread_mutex_lock(&info.sync_create);
 		info.node = info.node->left;
+		pthread_mutex_unlock(&info.sync_create);
 		if (info.node->index == 0)
 			break;
 	}
@@ -193,4 +224,5 @@ void	create_philo(t_info info)
 		if (info.node->index == 0)
 			break;
 	}
+	pthread_mutex_destroy(&info.sync_create);
 }

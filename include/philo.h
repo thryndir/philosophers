@@ -6,7 +6,7 @@
 /*   By: lgalloux <lgalloux@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/05 01:20:31 by thryndir          #+#    #+#             */
-/*   Updated: 2024/12/18 16:11:42 by lgalloux         ###   ########.fr       */
+/*   Updated: 2024/12/19 18:39:34 by lgalloux         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,7 @@ typedef	struct s_info
 	size_t			time_to_sleep;
 	int				max_eat;
 	bool			a_dead;
-	struct s_node	*node;
+	pthread_mutex_t	sync_create;
 }	t_info;
 
 typedef struct s_fork
@@ -67,12 +67,21 @@ typedef struct s_node
 	struct s_node *right;
 }	t_node;
 
-t_node	*init(t_info *info, int argc, char **argv);
+typedef struct s_iter
+{
+	t_info *info;
+	t_node *node;
+} 	t_iter;
+
+t_iter	*init(t_info *info, int argc, char **argv);
 t_node	*ft_nodelast(t_node *node);
+t_fork	*ft_forknew(t_fork *fork);
+t_node	*ft_nodenew(t_node *node, int index, int type);
+void	ft_nodeadd_back(t_node **node, t_node *new, bool is_last);
 void	print_node(t_node *node);
 void	verif_errors(char **argv);
 void	writef(size_t timestamp, int x, char *message);
-void	create_philo(t_info info);
+void	create_philo(t_iter *iter);
 int 	ft_usleep(size_t milliseconds);
 int		only_digit(char **argv);
 long	ft_atol(const char *str);

@@ -6,7 +6,7 @@
 /*   By: lgalloux <lgalloux@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/05 01:14:51 by thryndir          #+#    #+#             */
-/*   Updated: 2024/12/18 11:02:13 by lgalloux         ###   ########.fr       */
+/*   Updated: 2024/12/19 18:52:35 by lgalloux         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,6 @@
 
 t_node	*ft_nodelast(t_node *node)
 {
-
 	if (node == NULL)
 			return (NULL);
 	while (node->left && node->left->index > node->index)
@@ -63,33 +62,53 @@ void	ft_nodeadd_back(t_node **node, t_node *new, bool is_last)
 	}
 }
 
-t_philo	*ft_philonew()
+t_philo	*ft_philonew(t_philo *philo)
 {
 	t_philo	*result;
 
 	result = malloc(sizeof(t_philo));
 	if (!result)
 		return (NULL);
-	result->last_eat = get_current_time();
-	result->nbr_of_eat = 0;
-	result->nbr_of_fork = 0;
-	result->is_dead = false;
-	result->id = 0;
+	if (!philo)
+	{
+		result->last_eat = get_current_time();
+		result->nbr_of_eat = 0;
+		result->nbr_of_fork = 0;
+		result->is_dead = false;
+		result->id = 0;
+	}
+	else
+	{
+		result->last_eat = philo->last_eat;
+		result->is_dead = philo->is_dead;
+		result->id = philo->id;
+		result->nbr_of_eat = philo->nbr_of_eat;
+		result->nbr_of_fork = philo->nbr_of_fork;
+	}
 	return (result);
 }
 
-t_fork *ft_forknew()
+t_fork *ft_forknew(t_fork *fork)
 {
 	t_fork	*result;
 
 	result = malloc(sizeof(t_fork));
 	if (!result)
 		return (NULL);
-	result->is_used = false;
+	if (!fork)
+	{
+		result->is_used = false;
+		pthread_mutex_init(&result->fork_lock, NULL);
+	}
+	else
+	{
+		result->is_used = fork->is_used;
+		result->fork_lock = fork->fork_lock;
+	}
 	return (result);
 }
 
-t_node	*ft_nodenew(int index, int type)
+t_node	*ft_nodenew(t_node *node, int index, int type)
 {
 	t_node  *result;
 
@@ -98,35 +117,29 @@ t_node	*ft_nodenew(int index, int type)
 			return (NULL);
 	result->index = index;
 	result->type = type;
-	if (type == PHILO)
-		result->u_u.philo = ft_philonew();
-	else
-		result->u_u.fork = ft_forknew();
+	if (type == PHILO && node)
+		result->u_u.philo = ft_philonew(node->u_u.philo);
+	else if (type == PHILO && !node)
+		result->u_u.philo = ft_philonew(NULL);
+	if (type == FORK && node)
+		result->u_u.fork = ft_forknew(node->u_u.fork);
+	else if (type == FORK && !node)
+		result->u_u.fork = ft_forknew(NULL);
 	result->left = NULL;
 	result->right = NULL;
 	return (result);
 }
 
-t_node	*init(t_info *info, int argc, char **argv)
+t_node *init_node(t_info *info)
 {
-	int	i;
 	t_node *node;
-	t_node	*new;
+	t_node *new;
+	int		i;
 
-	i = 0;
-	info->nbr_of_philo = ft_atol(argv[1]);
-	info->time_to_die = ft_atol(argv[2]);
-	info->time_to_eat = ft_atol(argv[3]);
-	info->time_to_sleep = ft_atol(argv[4]);
-	info->a_dead = false;
-	info->max_eat = -1;
-	if (argc == 6)
-		info->max_eat = ft_atol(argv[5]);
-	node = ft_nodenew(i, i % 2);
-	i++;
+	node = ft_nodenew(NULL, 0, PHILO);
 	while (i < info->nbr_of_philo * 2)
 	{
-		new = ft_nodenew(i, i % 2);
+		new = ft_nodenew(NULL, i, i % 2);
 		if (i == info->nbr_of_philo * 2 - 1)
 			ft_nodeadd_back(&node, new, true);
 		else
@@ -134,4 +147,31 @@ t_node	*init(t_info *info, int argc, char **argv)
 		i++;
 	}
 	return (node);
+}
+
+void	init_info(t_info *info, int argc, char **argv)
+{
+	info->nbr_of_philo = ft_atol(argv[1]);
+	info->time_to_die = ft_atol(argv[2]);
+	info->time_to_eat = ft_atol(argv[3]);
+	info->time_to_sleep = ft_atol(argv[4]);
+	info->a_dead = false;
+	info->max_eat = -1;
+	pthread_mutex_init(&info->sync_create, NULL);
+	if (argc == 6)
+	info->max_eat = ft_atol(argv[5]);
+}
+
+t_iter	*iter_new()
+
+t_iter	*init(t_info *info, int argc, char **argv)
+{
+	int	i;
+	t_iter	*iter;
+
+	init_info(info, argc, argv);
+	iter = malloc(sizeof(t_iter));
+	iter->node = init_node(iter->info);
+	iter->info = info;
+	return (iter);
 }
