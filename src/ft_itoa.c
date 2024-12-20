@@ -2,11 +2,9 @@
 
 char	*convert(char *str, size_t nbr, int len)
 {
-	if (nbr < 0)
-		str[0] = '-';
-	while ((len > 0 && nbr < 0) || (len >= 0 && nbr >= 0))
+	while (len >= 0)
 	{
-		str[len] = (nbr % 10) * (1 - 2 * (nbr < 0)) + '0';
+		str[len] = (nbr % 10) + '0';
 		nbr = nbr / 10;
 		len--;
 	}

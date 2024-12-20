@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   init.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lgalloux <lgalloux@student.42.fr>          +#+  +:+       +#+        */
+/*   By: thryndir <thryndir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/05 01:14:51 by thryndir          #+#    #+#             */
-/*   Updated: 2024/12/19 18:52:35 by lgalloux         ###   ########.fr       */
+/*   Updated: 2024/12/20 13:09:14 by thryndir         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,53 +62,34 @@ void	ft_nodeadd_back(t_node **node, t_node *new, bool is_last)
 	}
 }
 
-t_philo	*ft_philonew(t_philo *philo)
+t_philo	*ft_philonew(void)
 {
 	t_philo	*result;
 
 	result = malloc(sizeof(t_philo));
 	if (!result)
 		return (NULL);
-	if (!philo)
-	{
-		result->last_eat = get_current_time();
-		result->nbr_of_eat = 0;
-		result->nbr_of_fork = 0;
-		result->is_dead = false;
-		result->id = 0;
-	}
-	else
-	{
-		result->last_eat = philo->last_eat;
-		result->is_dead = philo->is_dead;
-		result->id = philo->id;
-		result->nbr_of_eat = philo->nbr_of_eat;
-		result->nbr_of_fork = philo->nbr_of_fork;
-	}
+	result->last_eat = get_current_time();
+	result->nbr_of_eat = 0;
+	result->nbr_of_fork = 0;
+	result->is_dead = false;
+	result->id = 0;
 	return (result);
 }
 
-t_fork *ft_forknew(t_fork *fork)
+t_fork *ft_forknew(void)
 {
 	t_fork	*result;
 
 	result = malloc(sizeof(t_fork));
 	if (!result)
 		return (NULL);
-	if (!fork)
-	{
-		result->is_used = false;
-		pthread_mutex_init(&result->fork_lock, NULL);
-	}
-	else
-	{
-		result->is_used = fork->is_used;
-		result->fork_lock = fork->fork_lock;
-	}
+	result->is_used = false;
+	pthread_mutex_init(&result->fork_lock, NULL);
 	return (result);
 }
 
-t_node	*ft_nodenew(t_node *node, int index, int type)
+t_node	*ft_nodenew(t_info *info, int index, int type)
 {
 	t_node  *result;
 
@@ -117,14 +98,11 @@ t_node	*ft_nodenew(t_node *node, int index, int type)
 			return (NULL);
 	result->index = index;
 	result->type = type;
-	if (type == PHILO && node)
-		result->u_u.philo = ft_philonew(node->u_u.philo);
-	else if (type == PHILO && !node)
-		result->u_u.philo = ft_philonew(NULL);
-	if (type == FORK && node)
-		result->u_u.fork = ft_forknew(node->u_u.fork);
-	else if (type == FORK && !node)
-		result->u_u.fork = ft_forknew(NULL);
+	result->info = info;
+	if (type == PHILO)
+		result->u_u.philo = ft_philonew();
+	else if (type == FORK)
+		result->u_u.fork = ft_forknew();
 	result->left = NULL;
 	result->right = NULL;
 	return (result);
@@ -136,10 +114,11 @@ t_node *init_node(t_info *info)
 	t_node *new;
 	int		i;
 
-	node = ft_nodenew(NULL, 0, PHILO);
+	i = 1;
+	node = ft_nodenew(info, 0, PHILO);
 	while (i < info->nbr_of_philo * 2)
 	{
-		new = ft_nodenew(NULL, i, i % 2);
+		new = ft_nodenew(info, i, i % 2);
 		if (i == info->nbr_of_philo * 2 - 1)
 			ft_nodeadd_back(&node, new, true);
 		else
@@ -162,16 +141,11 @@ void	init_info(t_info *info, int argc, char **argv)
 	info->max_eat = ft_atol(argv[5]);
 }
 
-t_iter	*iter_new()
-
-t_iter	*init(t_info *info, int argc, char **argv)
+t_node	*init(t_info *info, int argc, char **argv)
 {
-	int	i;
-	t_iter	*iter;
+	t_node *node;
 
 	init_info(info, argc, argv);
-	iter = malloc(sizeof(t_iter));
-	iter->node = init_node(iter->info);
-	iter->info = info;
-	return (iter);
+	node = init_node(info);
+	return (node);
 }

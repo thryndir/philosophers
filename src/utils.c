@@ -6,7 +6,7 @@
 /*   By: thryndir <thryndir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/06 00:56:30 by thryndir          #+#    #+#             */
-/*   Updated: 2024/12/13 14:51:52 by thryndir         ###   ########.fr       */
+/*   Updated: 2024/12/20 14:31:56 by thryndir         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,6 +57,15 @@ int	nbr_size(char	*nbr)
 		size++;
 	}
 	return (size);
+}
+
+size_t	time_since_start(int set_or_display)
+{
+	static size_t	start_time;
+
+	if (set_or_display == SET)
+		start_time = get_current_time();
+	return (get_current_time() - start_time);
 }
 
 size_t	get_current_time(void)
