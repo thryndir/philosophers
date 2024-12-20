@@ -6,7 +6,7 @@
 /*   By: thryndir <thryndir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/06 22:47:35 by lgalloux          #+#    #+#             */
-/*   Updated: 2024/12/20 14:34:03 by thryndir         ###   ########.fr       */
+/*   Updated: 2024/12/20 19:13:28 by thryndir         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,8 +15,8 @@
 void	take_r_fork(t_node *node)
 {
 	pthread_mutex_lock(&node->right->u_u.fork->fork_lock);
-	node->u_u.philo->nbr_of_fork++;
-	writef(time_since_start(DISPLAY), node->index, " has taken a fork\n");
+	if (!node->info->a_dead)
+		writef(since_start(DISPLAY), node->index / 2, " has taken a fork\n");
 }
 
 void	take_fork(t_node *node)
@@ -24,8 +24,8 @@ void	take_fork(t_node *node)
 	if (node->index % 4 == 0)
 		take_r_fork(node);
 	pthread_mutex_lock(&node->left->u_u.fork->fork_lock);
-	node->u_u.philo->nbr_of_fork++;
-	writef(time_since_start(DISPLAY), node->index, " has taken a fork\n");
+	if (!node->info->a_dead)
+		writef(since_start(DISPLAY), node->index / 2, " has taken a fork\n");
 	if (node->index % 4 != 0)
 		take_r_fork(node);
 }
@@ -37,61 +37,44 @@ int	philo_eat(t_node *node)
 
 	info = node->info;
 	philo = node->u_u.philo;
-	if (node->info->nbr_of_philo == 1)
-		return (0);
-	take_fork(node);
-	if (get_current_time() - philo->last_eat >= info->time_to_die)
+	if (node->info->nbr_of_philo == 1 && !node->info->a_dead)
 	{
-		pthread_mutex_unlock(&node->right->u_u.fork->fork_lock);
-		pthread_mutex_unlock(&node->left->u_u.fork->fork_lock);
-		philo->is_dead = true;
-		writef(time_since_start(DISPLAY), node->index, " died\n");
-		return (1);
+		writef(since_start(DISPLAY), node->index / 2, " has taken a fork\n");
+		while (1)
+		{
+			if (node->info->a_dead)
+				return (1);
+		}
 	}
-	printf("le philo %d a %d fork\n", node->index, node->u_u.philo->nbr_of_fork);
-	writef(time_since_start(DISPLAY), node->index, " is eating\n");
+	take_fork(node);
+	if (!node->info->a_dead)
+		writef(since_start(DISPLAY), node->index / 2, " is eating\n");
 	ft_usleep(info->time_to_eat);
 	philo->nbr_of_eat++;
 	philo->last_eat = get_current_time();
 	pthread_mutex_unlock(&node->right->u_u.fork->fork_lock);
 	pthread_mutex_unlock(&node->left->u_u.fork->fork_lock);
-	philo->nbr_of_fork = 0;
 	return (0);
 }
 
 int	philo_think(t_node *node)
 {
-	t_philo	*philo;
-	t_info	*info;
-
-	info = node->info;
-	philo = node->u_u.philo;
-	if (get_current_time() - philo->last_eat >= info->time_to_die)
-	{
-		philo->is_dead = true;
-		writef(time_since_start(DISPLAY), node->index, " died\n");
-		return (1);
-	}
-	writef(time_since_start(DISPLAY), node->index, " is thinking\n");
+	if (node->info->nbr_of_philo == 1)
+		return (0);
+	if (!node->info->a_dead)
+		writef(since_start(DISPLAY), node->index / 2, " is thinking\n");
 	return (0);
 }
 
 int	philo_sleep(t_node *node)
 {
-	t_philo *philo;
 	t_info	*info;
 
 	info = node->info;
-	philo = node->u_u.philo;
-	if (get_current_time() - philo->last_eat 
-		>= info->time_to_die || get_current_time() - philo->last_eat 
-		+ info->time_to_sleep >= info->time_to_die)
-	{
-		philo->is_dead = true;
-		writef(time_since_start(DISPLAY), node->index, " died\n");
-		return (1);
-	}
-	writef(time_since_start(DISPLAY), node->index, " is sleeping\n");
+	if (node->info->nbr_of_philo == 1)
+		return (0);
+	if (!node->info->a_dead)
+		writef(since_start(DISPLAY), node->index / 2, " is sleeping\n");
 	ft_usleep(info->time_to_sleep);
 	return (0);
 }
@@ -116,6 +99,38 @@ void	writef(size_t timestamp, int x, char *message)
 	free(to_write);
 }
 
+void	*monitoring(void *v_node)
+{
+	t_node 	*node;
+	t_info	*info;
+	int current_nbr_full;
+
+	node = (t_node *)v_node;
+	info = node->info;
+	while (1)
+	{
+		pthread_mutex_lock(&info->check_full);
+		current_nbr_full = info->nbr_full;
+		pthread_mutex_unlock(&info->check_full);
+
+		printf("nbr_full protégé: %d, max_eat: %d\n", current_nbr_full, info->max_eat);
+
+		if (node->type == PHILO && get_current_time()
+			- node->u_u.philo->last_eat >= info->time_to_die 
+			&& !node->u_u.philo->is_full)
+		{
+			info->a_dead = true;
+			writef(since_start(DISPLAY), node->index / 2, " died\n");
+			return (NULL);
+		}
+		if (current_nbr_full >= info->max_eat)
+			return NULL;
+		node = node->left;
+		ft_usleep(1);
+	}
+	return (NULL);
+}
+
 void	*philo_life(void *v_node)
 {
 	t_info	*info;
@@ -124,47 +139,36 @@ void	*philo_life(void *v_node)
 
 	node = (t_node *)v_node;
 	info = node->info;
-	// pthread_mutex_unlock(&info->sync_create);
 	philo = node->u_u.philo;
-	
 	while (!info->a_dead)
 	{
 		if (info->max_eat != -1 && philo->nbr_of_eat >= info->max_eat)
 		{
-			printf("c'est bon %d a bien mange\n", node->index);
+			pthread_mutex_lock(&info->check_full);
+			if (!philo->is_full)
+			{
+				philo->is_full = true;
+				info->nbr_full++;
+				printf("Philosophe %d est plein, nbr_full maintenant: %d\n", 
+					node->index / 2, info->nbr_full);
+			}
+			pthread_mutex_unlock(&info->check_full);
 			return (NULL);
 		}
 		if (info->a_dead || philo_eat(node))
-		{
-			if (info->a_dead)
-				writef(time_since_start(DISPLAY), node->index, " ah il y a un mort\n");
-			else
-				writef(time_since_start(DISPLAY), node->index, " il est mort en mangeant\n");
 			break;
-		}
 		if (info->a_dead || philo_sleep(node))
-		{
-			if (info->a_dead)
-				writef(time_since_start(DISPLAY), node->index, " ah il y a un mort\n");
-			else
-				writef(time_since_start(DISPLAY), node->index, " il est mort en dormant\n");
 			break;
-		}
 		if (info->a_dead || philo_think(node))
-		{
-			if (info->a_dead)
-				writef(time_since_start(DISPLAY), node->index, " ah il y a un mort\n");
-			else
-				writef(time_since_start(DISPLAY), node->index, " il est mort en pensant\n");
 			break;
-		}
 	}
-	info->a_dead = true;
 	return (NULL);
 }
 
 void	create_philo(t_node *node)
 {
+	pthread_t	id;
+
 	while (1)
 	{
 		if (node->type == PHILO)
@@ -173,6 +177,8 @@ void	create_philo(t_node *node)
 		if (node->index == 0)
 			break;
 	}
+	pthread_create(&id, NULL, &monitoring, node);
+	pthread_join(id, NULL);
 	while (1)
 	{
 		if (node->type == PHILO)
@@ -183,5 +189,5 @@ void	create_philo(t_node *node)
 		if (node->index == 0)
 			break;
 	}
-	pthread_mutex_destroy(&node->info->sync_create);
+	pthread_mutex_destroy(&node->info->check_full);
 }

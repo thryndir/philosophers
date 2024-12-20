@@ -6,7 +6,7 @@
 /*   By: thryndir <thryndir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/05 01:20:31 by thryndir          #+#    #+#             */
-/*   Updated: 2024/12/20 14:28:47 by thryndir         ###   ########.fr       */
+/*   Updated: 2024/12/20 18:27:41 by thryndir         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,13 +42,13 @@ typedef	struct s_info
 	size_t			time_to_sleep;
 	int				max_eat;
 	bool			a_dead;
-	pthread_mutex_t	sync_create;
+	int				nbr_full;
+	pthread_mutex_t	check_full;
 }	t_info;
 
 typedef struct s_fork
 {
 	pthread_mutex_t fork_lock;
-	bool 			is_used;
 }	t_fork;
 
 typedef struct	s_philo
@@ -56,8 +56,7 @@ typedef struct	s_philo
 	pthread_t	id;
 	size_t		last_eat;
 	int			nbr_of_eat;
-	int			nbr_of_fork;
-	bool		is_dead;
+	bool		is_full;
 }	t_philo;
 
 typedef struct s_node
@@ -87,7 +86,7 @@ int 	ft_usleep(size_t milliseconds);
 int		only_digit(char **argv);
 long	ft_atol(const char *str);
 size_t	get_current_time(void);
-size_t	time_since_start(int set_or_display);
+size_t	since_start(int set_or_display);
 char	*ft_itoa(size_t nbr);
 char	*ft_strjoin(const char *str1, const char *str2);
 size_t	ft_strlen(char *str);

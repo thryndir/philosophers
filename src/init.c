@@ -6,7 +6,7 @@
 /*   By: thryndir <thryndir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/05 01:14:51 by thryndir          #+#    #+#             */
-/*   Updated: 2024/12/20 13:09:14 by thryndir         ###   ########.fr       */
+/*   Updated: 2024/12/20 18:27:48 by thryndir         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,8 +71,7 @@ t_philo	*ft_philonew(void)
 		return (NULL);
 	result->last_eat = get_current_time();
 	result->nbr_of_eat = 0;
-	result->nbr_of_fork = 0;
-	result->is_dead = false;
+	result->is_full = false;
 	result->id = 0;
 	return (result);
 }
@@ -84,7 +83,6 @@ t_fork *ft_forknew(void)
 	result = malloc(sizeof(t_fork));
 	if (!result)
 		return (NULL);
-	result->is_used = false;
 	pthread_mutex_init(&result->fork_lock, NULL);
 	return (result);
 }
@@ -136,9 +134,10 @@ void	init_info(t_info *info, int argc, char **argv)
 	info->time_to_sleep = ft_atol(argv[4]);
 	info->a_dead = false;
 	info->max_eat = -1;
-	pthread_mutex_init(&info->sync_create, NULL);
+	info->nbr_full = 0;
 	if (argc == 6)
 	info->max_eat = ft_atol(argv[5]);
+	pthread_mutex_init(&info->check_full, NULL);
 }
 
 t_node	*init(t_info *info, int argc, char **argv)
