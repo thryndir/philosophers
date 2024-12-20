@@ -6,7 +6,7 @@
 /*   By: thryndir <thryndir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/05 01:20:31 by thryndir          #+#    #+#             */
-/*   Updated: 2024/12/20 18:27:41 by thryndir         ###   ########.fr       */
+/*   Updated: 2024/12/20 19:35:06 by thryndir         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,6 +44,7 @@ typedef	struct s_info
 	bool			a_dead;
 	int				nbr_full;
 	pthread_mutex_t	check_full;
+	pthread_mutex_t	check_death;
 }	t_info;
 
 typedef struct s_fork

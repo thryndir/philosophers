@@ -6,7 +6,7 @@
 /*   By: thryndir <thryndir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/05 01:14:51 by thryndir          #+#    #+#             */
-/*   Updated: 2024/12/20 18:27:48 by thryndir         ###   ########.fr       */
+/*   Updated: 2024/12/20 19:35:16 by thryndir         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -138,6 +138,7 @@ void	init_info(t_info *info, int argc, char **argv)
 	if (argc == 6)
 	info->max_eat = ft_atol(argv[5]);
 	pthread_mutex_init(&info->check_full, NULL);
+	pthread_mutex_init(&info->check_death, NULL);
 }
 
 t_node	*init(t_info *info, int argc, char **argv)
