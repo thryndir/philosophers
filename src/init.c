@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   init.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: thryndir <thryndir@student.42.fr>          +#+  +:+       +#+        */
+/*   By: lgalloux <lgalloux@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/05 01:14:51 by thryndir          #+#    #+#             */
-/*   Updated: 2024/12/20 19:35:16 by thryndir         ###   ########.fr       */
+/*   Updated: 2024/12/21 21:28:45 by lgalloux         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,7 +69,7 @@ t_philo	*ft_philonew(void)
 	result = malloc(sizeof(t_philo));
 	if (!result)
 		return (NULL);
-	result->last_eat = get_current_time();
+	result->last_eat = since_start(DISPLAY);
 	result->nbr_of_eat = 0;
 	result->is_full = false;
 	result->id = 0;
@@ -137,7 +137,6 @@ void	init_info(t_info *info, int argc, char **argv)
 	info->nbr_full = 0;
 	if (argc == 6)
 	info->max_eat = ft_atol(argv[5]);
-	pthread_mutex_init(&info->check_full, NULL);
 	pthread_mutex_init(&info->check_death, NULL);
 }
 

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   exec.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: thryndir <thryndir@student.42.fr>          +#+  +:+       +#+        */
+/*   By: lgalloux <lgalloux@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/06 22:47:35 by lgalloux          #+#    #+#             */
-/*   Updated: 2024/12/20 19:40:53 by thryndir         ###   ########.fr       */
+/*   Updated: 2024/12/21 21:25:38 by lgalloux         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 void	take_r_fork(t_node *node)
 {
 	pthread_mutex_lock(&node->right->u_u.fork->fork_lock);
-	if (!node->info->a_dead)
+	if (!atomic_load(&node->info->a_dead))
 		writef(since_start(DISPLAY), node->index / 2, " has taken a fork\n");
 }
 
@@ -27,10 +27,8 @@ void	take_fork(t_node *node)
 	if (node->index % 4 == 0)
 		take_r_fork(node);
 	pthread_mutex_lock(&node->left->u_u.fork->fork_lock);
-	pthread_mutex_lock(&info->check_death);
-	if (!node->info->a_dead)
+	if (!atomic_load(&node->info->a_dead))
 		writef(since_start(DISPLAY), node->index / 2, " has taken a fork\n");
-	pthread_mutex_unlock(&info->check_death);
 	if (node->index % 4 != 0)
 		take_r_fork(node);
 }
@@ -42,23 +40,19 @@ int	philo_eat(t_node *node)
 
 	info = node->info;
 	philo = node->u_u.philo;
-	if (node->info->nbr_of_philo == 1 && !node->info->a_dead)
+	if (node->info->nbr_of_philo == 1 && !atomic_load(&node->info->a_dead))
 	{
 		writef(since_start(DISPLAY), node->index / 2, " has taken a fork\n");
-		while (1)
-		{
-			if (node->info->a_dead)
-				return (1);
-		}
+		while (!atomic_load(&node->info->a_dead))
+			ft_usleep(1);
+		return (1);
 	}
 	take_fork(node);
-	pthread_mutex_lock(&info->check_death);
-	if (!node->info->a_dead)
+	atomic_store(&philo->last_eat, since_start(DISPLAY));
+	if (!atomic_load(&info->a_dead))
 		writef(since_start(DISPLAY), node->index / 2, " is eating\n");
-	pthread_mutex_unlock(&info->check_death);
 	ft_usleep(info->time_to_eat);
-	philo->nbr_of_eat++;
-	philo->last_eat = get_current_time();
+	atomic_fetch_add(&philo->nbr_of_eat, 1);
 	pthread_mutex_unlock(&node->right->u_u.fork->fork_lock);
 	pthread_mutex_unlock(&node->left->u_u.fork->fork_lock);
 	return (0);
@@ -69,12 +63,8 @@ int	philo_think(t_node *node)
 	t_info	*info;
 
 	info = node->info;
-	if (node->info->nbr_of_philo == 1)
-		return (0);
-	pthread_mutex_lock(&info->check_death);
-	if (!node->info->a_dead)
+	if (!atomic_load(&node->info->a_dead))
 		writef(since_start(DISPLAY), node->index / 2, " is thinking\n");
-	pthread_mutex_unlock(&info->check_death);
 	return (0);
 }
 
@@ -83,12 +73,8 @@ int	philo_sleep(t_node *node)
 	t_info	*info;
 
 	info = node->info;
-	if (node->info->nbr_of_philo == 1)
-		return (0);
-	pthread_mutex_lock(&info->check_death);
-	if (!node->info->a_dead)
+	if (!atomic_load(&node->info->a_dead))
 		writef(since_start(DISPLAY), node->index / 2, " is sleeping\n");
-	pthread_mutex_unlock(&info->check_death);
 	ft_usleep(info->time_to_sleep);
 	return (0);
 }
@@ -113,6 +99,20 @@ void	writef(size_t timestamp, int x, char *message)
 	free(to_write);
 }
 
+bool should_die(t_node *node)
+{
+	size_t	current_time;
+	size_t	last_eat_time;
+	size_t	time_difference;
+	bool	is_full;
+
+	current_time = since_start(DISPLAY);
+	last_eat_time = atomic_load(&node->u_u.philo->last_eat);
+	is_full = atomic_load(&node->u_u.philo->is_full);
+	time_difference = current_time - last_eat_time;
+	return (time_difference >= node->info->time_to_die && !is_full);
+}
+
 void	*monitoring(void *v_node)
 {
 	t_node 	*node;
@@ -122,22 +122,17 @@ void	*monitoring(void *v_node)
 	info = node->info;
 	while (1)
 	{
-		if (node->type == PHILO && get_current_time()
-			- node->u_u.philo->last_eat >= info->time_to_die 
-			&& !node->u_u.philo->is_full)
+		if (node->type == PHILO && should_die(node))
 		{
-			pthread_mutex_lock(&info->check_death);
-			info->a_dead = true;
-			pthread_mutex_unlock(&info->check_death);
+			atomic_store(&info->a_dead, true);
 			writef(since_start(DISPLAY), node->index / 2, " died\n");
 			return (NULL);
 		}
-		pthread_mutex_lock(&info->check_full);
-		if (info->nbr_full >= info->nbr_of_philo)
+		if (atomic_load(&info->nbr_full) >= info->nbr_of_philo)
 			return NULL;
-		pthread_mutex_unlock(&info->check_full);
 		node = node->left;
-		ft_usleep(1);
+		if (node->index == 0)
+			ft_usleep(1);
 	}
 	return (NULL);
 }
@@ -151,21 +146,22 @@ void	*philo_life(void *v_node)
 	node = (t_node *)v_node;
 	info = node->info;
 	philo = node->u_u.philo;
-	while (!info->a_dead)
+	while (!atomic_load(&info->a_dead))
 	{
-		if (info->a_dead || philo_eat(node))
+		if (atomic_load(&info->a_dead) || philo_eat(node))
 			return (NULL);
-		if (info->max_eat != -1 && philo->nbr_of_eat >= info->max_eat)
+		if (info->max_eat != -1 && atomic_load(&philo->nbr_of_eat)
+			>= info->max_eat)
 		{
-			pthread_mutex_lock(&info->check_full);
-			philo->is_full = true;
-			info->nbr_full++;
-			pthread_mutex_unlock(&info->check_full);
+			pthread_mutex_lock(&info->check_death);
+			atomic_store(&philo->is_full, true);
+			atomic_fetch_add(&info->nbr_full, 1);
+			pthread_mutex_unlock(&info->check_death);
 			return (NULL);
 		}
-		if (info->a_dead || philo_sleep(node))
+		if (atomic_load(&info->a_dead) || philo_sleep(node))
 			return (NULL);
-		if (info->a_dead || philo_think(node))
+		if (atomic_load(&info->a_dead) || philo_think(node))
 			return (NULL);
 	}
 	return (NULL);
@@ -173,8 +169,10 @@ void	*philo_life(void *v_node)
 
 void	create_philo(t_node *node)
 {
-	pthread_t	id;
+	pthread_t	monitor_id;
+	t_type		philo_or_fork;
 
+	philo_or_fork = PHILO;
 	while (1)
 	{
 		if (node->type == PHILO)
@@ -183,18 +181,19 @@ void	create_philo(t_node *node)
 		if (node->index == 0)
 			break;
 	}
-	pthread_create(&id, NULL, &monitoring, node);
-	pthread_join(id, NULL);
+	pthread_create(&monitor_id, NULL, &monitoring, node);
+	pthread_join(monitor_id, NULL);
 	while (1)
 	{
-		if (node->type == PHILO)
+		if (node->type == PHILO && philo_or_fork == PHILO)
 			pthread_join(node->u_u.philo->id, NULL);
-		else if (node->type == FORK)
+		else if (node->type == FORK && philo_or_fork == FORK)
 			pthread_mutex_destroy(&node->u_u.fork->fork_lock);
 		node = node->left;
-		if (node->index == 0)
+		if (node->index == 0 && philo_or_fork == PHILO)
+			philo_or_fork = FORK;
+		else if (node->index == 0 && philo_or_fork == FORK)
 			break;
 	}
-	pthread_mutex_destroy(&node->info->check_full);
 	pthread_mutex_destroy(&node->info->check_death);
 }

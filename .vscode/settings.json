@@ -1,6 +1,9 @@
 {
     "files.associations": {
         "*.c": "c",
-        "iterator": "c"
+        "iterator": "c",
+        "thread": "c",
+        "__locale": "c",
+        "locale": "c"
     }
 }

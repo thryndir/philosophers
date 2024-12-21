@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   philo.h                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: thryndir <thryndir@student.42.fr>          +#+  +:+       +#+        */
+/*   By: lgalloux <lgalloux@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/05 01:20:31 by thryndir          #+#    #+#             */
-/*   Updated: 2024/12/20 19:35:06 by thryndir         ###   ########.fr       */
+/*   Updated: 2024/12/21 21:16:06 by lgalloux         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,7 @@
 # include <limits.h>
 # include <sys/time.h>
 # include <string.h>
+# include <stdatomic.h>
 
 typedef enum e_type
 {
@@ -37,13 +38,12 @@ typedef enum e_set_or_display
 typedef	struct s_info
 {
 	int				nbr_of_philo;
+	int				max_eat;
 	size_t			time_to_die;
 	size_t			time_to_eat;
 	size_t			time_to_sleep;
-	int				max_eat;
-	bool			a_dead;
-	int				nbr_full;
-	pthread_mutex_t	check_full;
+	atomic_bool		a_dead;
+	atomic_int		nbr_full;
 	pthread_mutex_t	check_death;
 }	t_info;
 
@@ -54,10 +54,10 @@ typedef struct s_fork
 
 typedef struct	s_philo
 {
-	pthread_t	id;
-	size_t		last_eat;
-	int			nbr_of_eat;
-	bool		is_full;
+	atomic_int		nbr_of_eat;
+	pthread_t		id;
+	atomic_size_t	last_eat;
+	atomic_bool		is_full;
 }	t_philo;
 
 typedef struct s_node

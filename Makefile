@@ -1,7 +1,7 @@
 NAME := philosophers
 HEADER := -Iinclude
 CC := cc
-CFLAGS = -Wall -Wextra -Werror -g -pthread
+CFLAGS = -Wall -Wextra -Werror -g -pthread -fsanitize=thread
 RM := rm -rf
 
 SRC_DIR := src/
