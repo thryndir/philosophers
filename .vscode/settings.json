@@ -4,6 +4,8 @@
         "iterator": "c",
         "thread": "c",
         "__locale": "c",
-        "locale": "c"
+        "locale": "c",
+        "philo.h": "c",
+        "__node_handle": "c"
     }
 }

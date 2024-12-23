@@ -3,20 +3,20 @@
 /*                                                        :::      ::::::::   */
 /*   utils.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: thryndir <thryndir@student.42.fr>          +#+  +:+       +#+        */
+/*   By: lgalloux <lgalloux@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/06 00:56:30 by thryndir          #+#    #+#             */
-/*   Updated: 2024/12/20 15:09:47 by thryndir         ###   ########.fr       */
+/*   Updated: 2024/12/23 19:16:26 by lgalloux         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-long	ft_atol(const char *str)
+int	ft_atoi(const char *str)
 {
-	int			i;
-	long		result;
-	int			sign;
+	int				i;
+	unsigned long	result;
+	int				sign;
 
 	i = 0;
 	result = 0;
@@ -59,7 +59,7 @@ int	nbr_size(char	*nbr)
 	return (size);
 }
 
-size_t	since_start(int set_or_display)
+int	since_start(int set_or_display)
 {
 	static size_t	start_time;
 
@@ -77,9 +77,9 @@ size_t	get_current_time(void)
 	return (time.tv_sec * 1000 + time.tv_usec / 1000);
 }
 
-int ft_usleep(size_t milliseconds)
+int	ft_usleep(size_t milliseconds)
 {
-	size_t start;
+	size_t	start;
 
 	start = get_current_time();
 	while ((get_current_time() - start) < milliseconds)

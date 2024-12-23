@@ -3,23 +3,23 @@
 /*                                                        :::      ::::::::   */
 /*   ft_strjoin.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: thryndir <thryndir@student.42.fr>          +#+  +:+       +#+        */
+/*   By: lgalloux <lgalloux@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/14 12:04:20 by thryndir          #+#    #+#             */
-/*   Updated: 2024/12/16 15:59:24 by thryndir         ###   ########.fr       */
+/*   Updated: 2024/12/23 19:12:38 by lgalloux         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-size_t ft_strlen(char *str)
+size_t	ft_strlen(char *str)
 {
-    size_t len;
+	size_t	len;
 
 	len = 0;
-    while (str[len])
-        len++;
-    return (len);
+	while (str[len])
+		len++;
+	return (len);
 }
 
 size_t	ft_strlcat(char *dst, const char *src, size_t size)

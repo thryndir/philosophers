@@ -3,58 +3,43 @@
 /*                                                        :::      ::::::::   */
 /*   verif.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: thryndir <thryndir@student.42.fr>          +#+  +:+       +#+        */
+/*   By: lgalloux <lgalloux@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/06 01:01:24 by thryndir          #+#    #+#             */
-/*   Updated: 2024/12/13 15:20:39 by thryndir         ###   ########.fr       */
+/*   Updated: 2024/12/23 17:52:44 by lgalloux         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-int	only_digit(char **argv)
+bool	only_digit(char *arg)
 {
 	int	i;
-	int	j;
 
-	i = 1;
-	while (argv[i])
+	i = 0;
+	while (arg[i])
 	{
-		j = 0;
-		while (argv[i][j])
+		while (arg[i])
 		{
-			if (((argv[i][j] < '0' || (argv[i][j] > '9')) && argv[i][j] != '-')
-			|| (argv[i][j] == '-' && (argv[i][j + 1] < '0'
-			|| argv[i][j + 1] > '9')))
-				return (0);
-			j++;
+			if (arg[i] < '0' || arg[i] > '9')
+				return (false);
+			i++;
 		}
-		i++;
 	}
-	return (1);
+	return (true);
 }
 
-int	sup_to_maxint(char	**argv)
+int	verif_errors(char **argv, int argc)
 {
-	int	i;
-
-	i = 1;
-	while (argv[i])
-	{
-		if ((nbr_size(argv[i]) > 10) || (ft_atol(argv[i]) > INT_MAX
-				&& argv[i][0] != '-') || (ft_atol(argv[i]) < INT_MIN))
-			return (1);
-		i++;
-	}
+	if (ft_atoi(argv[1]) < 0 || !only_digit(argv[1]))
+		return (write(1, "wrong philo number\n", 20));
+	if (ft_atoi(argv[2]) < 0 || !only_digit(argv[2]))
+		return (write(1, "wrong time to die\n", 19));
+	if (ft_atoi(argv[3]) < 0 || !only_digit(argv[3]))
+		return (write(1, "wrong time to eat\n", 19));
+	if (ft_atoi(argv[4]) < 0 || !only_digit(argv[4]))
+		return (write(1, "wrong time to sleep\n", 19));
+	if (argc == 6 && (ft_atoi(argv[5]) < 0 || !only_digit(argv[5])))
+		return (write(1, "wrong max_eat number\n", 22));
 	return (0);
-}
-
-void	verif_errors(char **argv)
-{
-	if (!only_digit(argv))
-		write(1, "error in parsing", 17);
-	if (sup_to_maxint(argv))
-		write(1, "error in parsing", 17);
-	if (ft_atol(argv[1]) > 200)
-		write(1, "error in parsing", 17);
 }
